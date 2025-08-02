@@ -30,13 +30,17 @@ export const registerUser = createAsyncThunk(
           status: "success",
         })
       );
+      console.log("회원가입 성공", response);
       navigate("/login");
+
       return response.data.data;
     } catch (error) {
+      console.log("회원가입 에러", error);
       dispatch(
         showToastMessage({
           status: "error",
-          message: "회원가입에 실패 했습니다",
+          message:
+            error.message || "회원가입에 실패했습니다. 다시 시도해주세요.",
         })
       );
       return rejectWithValue(error.error);
