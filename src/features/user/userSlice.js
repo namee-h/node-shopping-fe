@@ -6,7 +6,24 @@ import { initialCart } from "../cart/cartSlice";
 
 export const loginWithEmail = createAsyncThunk(
   "user/loginWithEmail",
-  async ({ email, password }, { rejectWithValue }) => {}
+  async ({ email, password }, { rejectWithValue }) => {
+    try {
+      const response = await api.post("/auth/login", {
+        email,
+        password,
+      });
+      sessionStorage.setItem("token", response.data.token);
+
+      // 성공
+      // 로그인페이지에서  네비게이트
+      return response.data;
+    } catch (error) {
+      // 실패
+      // 실패 에러값 reducer 에 저장
+
+      return rejectWithValue(error.error);
+    }
+  }
 );
 
 export const loginWithGoogle = createAsyncThunk(
@@ -14,7 +31,13 @@ export const loginWithGoogle = createAsyncThunk(
   async (token, { rejectWithValue }) => {}
 );
 
-export const logout = () => (dispatch) => {};
+export const logout = () => (dispatch) => {
+  // 로컬스토리지에서 토큰 제거
+  sessionStorage.removeItem("token");
+
+  // Redux store에서 사용자 정보 제거
+  dispatch(logoutAction());
+};
 export const registerUser = createAsyncThunk(
   "user/registerUser",
   async (
@@ -22,7 +45,11 @@ export const registerUser = createAsyncThunk(
     { dispatch, rejectWithValue }
   ) => {
     try {
-      const response = await api.post("/user", { email, name, password });
+      const response = await api.post("/user", {
+        email,
+        name,
+        password,
+      });
 
       dispatch(
         showToastMessage({
@@ -50,7 +77,14 @@ export const registerUser = createAsyncThunk(
 
 export const loginWithToken = createAsyncThunk(
   "user/loginWithToken",
-  async (_, { rejectWithValue }) => {}
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get("/user/me");
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.error);
+    }
+  }
 );
 
 const userSlice = createSlice({
@@ -67,6 +101,14 @@ const userSlice = createSlice({
       state.loginError = null;
       state.registrationError = null;
     },
+    logout: (state) => {
+      state.user = null;
+      state.token = null;
+      state.loginError = null;
+      state.registrationError = null;
+      state.loading = false;
+      state.success = false;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -79,8 +121,24 @@ const userSlice = createSlice({
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.registrationError = action.payload;
+      })
+      .addCase(loginWithEmail.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(loginWithEmail.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+        state.loginError = null;
+      })
+      .addCase(loginWithEmail.rejected, (state, action) => {
+        state.loginError = action.payload;
+        state.loading = false;
+      })
+      .addCase(loginWithToken.fulfilled, (state, action) => {
+        state.user = action.payload.user;
       });
   },
 });
-export const { clearErrors } = userSlice.actions;
+export const { clearErrors, logout: logoutAction } = userSlice.actions;
 export default userSlice.reducer;
