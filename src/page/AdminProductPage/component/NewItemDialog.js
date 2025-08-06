@@ -9,6 +9,7 @@ import {
   createProduct,
   editProduct,
 } from "../../../features/product/productSlice";
+import { getProductList } from "../../../features/product/productSlice";
 
 const InitialFormData = {
   name: "",
@@ -31,12 +32,17 @@ const NewItemDialog = ({ mode, showDialog, setShowDialog }) => {
   const [stock, setStock] = useState([]);
   const dispatch = useDispatch();
   const [stockError, setStockError] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
 
   // console.log("stock", stock);
 
   useEffect(() => {
-    if (success) setShowDialog(false);
-  }, [success]);
+    if (success) {
+      setShowDialog(false);
+      // success 상태 리셋
+      dispatch(clearError());
+    }
+  }, [success, dispatch]);
 
   useEffect(() => {
     if (error || !success) {
@@ -61,18 +67,33 @@ const NewItemDialog = ({ mode, showDialog, setShowDialog }) => {
   const handleClose = () => {
     //모든걸 초기화시키고;
     // 다이얼로그 닫아주기
+    setShowDialog(false);
+    dispatch(clearError());
+    setFormData({ ...InitialFormData });
+    setStock([]);
+    setStockError(false);
+    setFormErrors({});
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
     // console.log("formData", formData);
     // console.log("stock", stock);
+
+    // 가격 검증
+    if (!formData.price || formData.price <= 0) {
+      setFormErrors({ price: "가격은 0보다 큰 값이어야 합니다." });
+      return;
+    }
+
     //재고를 입력했는지 확인, 아니면 에러
     if (stock.length === 0) {
-      setStockError(true);
+      setStockError("재고는 필수 입력 항목입니다.");
       return;
     }
     setStockError(false);
+    setFormErrors({}); // 에러 초기화
+
     // 재고를 배열에서 객체로 바꿔주기
     const totalStockObject = stock.reduce((total, item) => {
       return { ...total, [item[0]]: parseInt(item[1]) };
@@ -275,6 +296,9 @@ const NewItemDialog = ({ mode, showDialog, setShowDialog }) => {
               type="number"
               placeholder="0"
             />
+            {formErrors.price && (
+              <span className="error-message">{formErrors.price}</span>
+            )}
           </Form.Group>
 
           <Form.Group as={Col} controlId="category">
