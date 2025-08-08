@@ -70,6 +70,7 @@ const AdminProductPage = () => {
 
   const handlePageClick = ({ selected }) => {
     //  쿼리에 페이지값 바꿔주기
+    setSearchQuery({ ...searchQuery, page: selected + 1 });
   };
 
   return (
@@ -86,18 +87,21 @@ const AdminProductPage = () => {
         <Button className="mt-2 mb-2" onClick={handleClickNewItem}>
           Add New Item +
         </Button>
+        {totalPageNum > 0 && (
+          <ProductTable
+            header={tableHeader}
+            data={productList}
+            deleteItem={deleteItem}
+            openEditForm={openEditForm}
+          />
+        )}
 
-        <ProductTable
-          header={tableHeader}
-          data={productList}
-          deleteItem={deleteItem}
-          openEditForm={openEditForm}
-        />
+        {totalPageNum === 0 && <div>검색어와 일치하는 결과가 없습니다</div>}
         <ReactPaginate
           nextLabel="next >"
           onPageChange={handlePageClick}
           pageRangeDisplayed={5}
-          pageCount={100}
+          pageCount={totalPageNum}
           forcePage={searchQuery.page - 1}
           previousLabel="< previous"
           renderOnZeroPageCount={null}

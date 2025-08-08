@@ -8,8 +8,9 @@ export const getProductList = createAsyncThunk(
   async (query, { rejectWithValue }) => {
     try {
       const response = await api.get("/product", { params: { ...query } });
+      console.log("rrr", response);
       if (response.status !== 200) throw new Error(response.error);
-      return response.data.data;
+      return response.data;
     } catch (error) {
       const errorMessage =
         error.response?.data?.message ||
@@ -30,6 +31,7 @@ export const createProduct = createAsyncThunk(
   async (formData, { dispatch, rejectWithValue }) => {
     try {
       const response = await api.post("/product", formData);
+
       if (response.status !== 200) throw new Error(response.error);
       dispatch(
         showToastMessage({ message: "상품 생성 완료", status: "success" })
@@ -103,7 +105,9 @@ const productSlice = createSlice({
       })
       .addCase(getProductList.fulfilled, (state, action) => {
         state.loading = false;
-        state.productList = action.payload;
+        state.productList = action.payload.data;
+        state.totalPageNum = action.payload.totalPageNum;
+        state.error = "";
       })
       .addCase(getProductList.rejected, (state, action) => {
         state.loading = false;
