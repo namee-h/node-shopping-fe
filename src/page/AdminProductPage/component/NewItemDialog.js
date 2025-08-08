@@ -96,6 +96,10 @@ const NewItemDialog = ({ mode, showDialog, setShowDialog }) => {
 
     // 재고를 배열에서 객체로 바꿔주기
     const totalStockObject = stock.reduce((total, item) => {
+      if (item[1] < 0) {
+        setStockError("재고는 -1 이하의 값이 될 수 없습니다");
+        throw new Error("재고는 -1 이하의 값이 될 수 없습니다");
+      }
       return { ...total, [item[0]]: parseInt(item[1]) };
     }, {});
     // console.log("totalStockObject", totalStockObject);
@@ -105,6 +109,14 @@ const NewItemDialog = ({ mode, showDialog, setShowDialog }) => {
       dispatch(createProduct({ ...formData, stock: totalStockObject }));
     } else {
       // 상품 수정하기
+
+      dispatch(
+        editProduct({
+          ...formData,
+          stock: totalStockObject,
+          id: selectedProduct._id,
+        })
+      );
     }
   };
 
@@ -215,9 +227,7 @@ const NewItemDialog = ({ mode, showDialog, setShowDialog }) => {
 
         <Form.Group className="mb-3" controlId="stock">
           <Form.Label className="mr-1">Stock</Form.Label>
-          {stockError && (
-            <span className="error-message">재고를 추가해주세요</span>
-          )}
+          {stockError && <span className="error-message">{stockError}</span>}
           <Button size="sm" onClick={addStock}>
             Add +
           </Button>

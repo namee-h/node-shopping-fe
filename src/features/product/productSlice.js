@@ -57,7 +57,25 @@ export const deleteProduct = createAsyncThunk(
 
 export const editProduct = createAsyncThunk(
   "products/editProduct",
-  async ({ id, ...formData }, { dispatch, rejectWithValue }) => {}
+  async ({ id, ...formData }, { dispatch, rejectWithValue }) => {
+    try {
+      const response = await api.put(`/product/${id}`, formData);
+      if (response.status !== 200) throw new Error(response.error);
+
+      dispatch(
+        showToastMessage({ message: "상품 수정 완료", status: "success" })
+      );
+      dispatch(getProductList({ page: 1 }));
+      return response.data;
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "상품 수정에 실패했습니다.";
+      dispatch(showToastMessage({ message: errorMessage, status: "error" }));
+      return rejectWithValue(errorMessage);
+    }
+  }
 );
 
 // 슬라이스 생성
@@ -110,6 +128,21 @@ const productSlice = createSlice({
         state.error = "";
       })
       .addCase(getProductList.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        state.success = false;
+      })
+      .addCase(editProduct.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(editProduct.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = "";
+        state.success = true;
+        state.productList = action.payload.data;
+        state.totalPageNum = action.payload.totalPageNum;
+      })
+      .addCase(editProduct.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
         state.success = false;
