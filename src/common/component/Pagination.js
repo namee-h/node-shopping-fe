@@ -7,8 +7,6 @@ const Pagination = ({
   onPageChange,
   className = "display-center list-style-none",
 }) => {
-  if (totalPageNum <= 1) return null;
-
   return (
     <ReactPaginate
       nextLabel="next >"
