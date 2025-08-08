@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Container, Button } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import ReactPaginate from "react-paginate";
 import SearchBox from "../../common/component/SearchBox";
+import Pagination from "../../common/component/Pagination";
 import NewItemDialog from "./component/NewItemDialog";
 import ProductTable from "./component/ProductTable";
 import {
@@ -100,26 +100,10 @@ const AdminProductPage = () => {
         )}
 
         {totalPageNum === 0 && <div>검색어와 일치하는 결과가 없습니다</div>}
-        <ReactPaginate
-          nextLabel="next >"
+        <Pagination
+          totalPageNum={totalPageNum}
+          currentPage={searchQuery.page}
           onPageChange={handlePageClick}
-          pageRangeDisplayed={5}
-          pageCount={totalPageNum}
-          forcePage={searchQuery.page - 1}
-          previousLabel="< previous"
-          renderOnZeroPageCount={null}
-          pageClassName="page-item"
-          pageLinkClassName="page-link"
-          previousClassName="page-item"
-          previousLinkClassName="page-link"
-          nextClassName="page-item"
-          nextLinkClassName="page-link"
-          breakLabel="..."
-          breakClassName="page-item"
-          breakLinkClassName="page-link"
-          containerClassName="pagination"
-          activeClassName="active"
-          className="display-center list-style-none"
         />
       </Container>
 
