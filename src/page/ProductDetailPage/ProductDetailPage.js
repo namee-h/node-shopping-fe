@@ -29,6 +29,7 @@ const ProductDetail = () => {
   useEffect(() => {
     dispatch(getProductDetail(id));
   }, [id, dispatch]);
+  console.log("selectedProduct", selectedProduct);
 
   if (loading || !selectedProduct)
     return (
