@@ -47,29 +47,50 @@ const LandingPage = () => {
     setSearchQuery({ ...searchQuery, page: selected + 1 });
   };
 
+  const renderContent = () => {
+    const emptyProduct =
+      searchQuery.name !== "" && !loading && productList.length === 0;
+    const noResult =
+      searchQuery.name !== "" && !loading && productList.length > 0;
+    const landingProduct = productList.length > 0 && !loading;
+
+    if (loading) {
+      return (
+        <div className="text-align-center empty-bag">
+          <LoadingSpinner />
+        </div>
+      );
+    }
+
+    if (landingProduct) {
+      return productList.map((item) => (
+        <Col md={3} sm={12} key={item._id}>
+          <ProductCard item={item} />
+        </Col>
+      ));
+    }
+
+    if (noResult) {
+      return (
+        <div className="text-align-center empty-bag">
+          <h2>{searchQuery.name}와 일치하는 결과가 없습니다</h2>
+        </div>
+      );
+    }
+
+    // 상품이 없을 때
+    if (emptyProduct) {
+      return (
+        <div className="text-align-center empty-bag">
+          <h2>등록된 상품이 없습니다!</h2>
+        </div>
+      );
+    }
+  };
+
   return (
     <Container>
-      <Row>
-        {loading ? (
-          <div className="text-align-center empty-bag">
-            <LoadingSpinner />
-          </div>
-        ) : productList.length > 0 ? (
-          productList.map((item) => (
-            <Col md={3} sm={12} key={item._id}>
-              <ProductCard item={item} />
-            </Col>
-          ))
-        ) : (
-          <div className="text-align-center empty-bag">
-            {searchQuery.name === "" ? (
-              <h2>등록된 상품이 없습니다!</h2>
-            ) : (
-              <h2>{searchQuery.name}와 일치하는 결과가 없습니다</h2>
-            )}
-          </div>
-        )}
-      </Row>
+      <Row>{renderContent()}</Row>
 
       <Pagination
         totalPageNum={totalPageNum}
