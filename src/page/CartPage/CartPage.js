@@ -18,7 +18,11 @@ const CartPage = () => {
   }, []);
 
   if (loading) {
-    return <LoadingSpinner />;
+    return (
+      <div className="text-align-center">
+        <LoadingSpinner />
+      </div>
+    );
   }
   return (
     <Container>
