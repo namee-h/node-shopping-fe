@@ -34,6 +34,7 @@ export const loginWithGoogle = createAsyncThunk(
 export const logout = () => (dispatch) => {
   // 로컬스토리지에서 토큰 제거
   sessionStorage.removeItem("token");
+  dispatch(initialCart());
 
   // Redux store에서 사용자 정보 제거
   dispatch(logoutAction());
