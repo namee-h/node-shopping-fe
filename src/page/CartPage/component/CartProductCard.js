@@ -49,14 +49,11 @@ const CartProductCard = ({ item }) => {
               defaultValue={item.qty}
               className="qty-dropdown"
             >
-              {Array.from(
-                { length: Math.min(item.productId.stock[item.size] || 0, 10) },
-                (_, i) => (
-                  <option key={i + 1} value={i + 1}>
-                    {i + 1}
-                  </option>
-                )
-              )}
+              {Array.from({ length: 10 }, (_, i) => (
+                <option key={i + 1} value={i + 1}>
+                  {i + 1}
+                </option>
+              ))}
             </Form.Select>
           </div>
         </Col>
