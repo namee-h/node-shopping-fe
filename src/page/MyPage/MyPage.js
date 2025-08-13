@@ -14,7 +14,7 @@ const MyPage = () => {
   useEffect(() => {
     dispatch(getOrder());
   }, [dispatch]);
-  if (orderList.length > 0 && loading) {
+  if (orderList.length === 0 && loading) {
     return <LoadingSpinner />;
   }
 
