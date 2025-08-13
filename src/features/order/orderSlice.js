@@ -11,6 +11,7 @@ const initialState = {
   error: "",
   loading: false,
   totalPageNum: 1,
+  searchQuery: {}, // 추가
 };
 
 // Async thunks
@@ -71,7 +72,26 @@ export const getOrderList = createAsyncThunk(
 
 export const updateOrder = createAsyncThunk(
   "order/updateOrder",
-  async ({ id, status }, { dispatch, rejectWithValue }) => {}
+  async ({ id, status }, { dispatch, getState, rejectWithValue }) => {
+    try {
+      const response = await api.put("/order/admin", { id, status });
+      if (response.status !== 200) {
+        throw new Error(response.data.error);
+      }
+
+      // 현재 검색 조건을 유지하면서 리스트 갱신
+      const state = getState();
+      const currentQuery = state.order.searchQuery || {};
+      dispatch(
+        showToastMessage({ message: "주문 상태 변경 완료", status: "success" })
+      );
+      dispatch(getOrderList(currentQuery));
+
+      return response.data.order;
+    } catch (error) {
+      return rejectWithValue(error.error);
+    }
+  }
 );
 
 // Order slice
@@ -115,8 +135,25 @@ const orderSlice = createSlice({
         state.loading = false;
         state.orderList = action.payload.orderList;
         state.totalPageNum = action.payload.totalPageNum;
+        // 현재 검색 조건 저장
+        if (action.meta?.arg) {
+          state.searchQuery = action.meta.arg;
+        }
       })
       .addCase(getOrderList.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(updateOrder.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updateOrder.fulfilled, (state, action) => {
+        state.loading = false;
+        state.orderList = state.orderList.map((order) =>
+          order._id === action.payload._id ? action.payload : order
+        );
+      })
+      .addCase(updateOrder.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
