@@ -15,7 +15,11 @@ const MyPage = () => {
     dispatch(getOrder());
   }, [dispatch]);
   if (orderList.length === 0 && loading) {
-    return <LoadingSpinner />;
+    return (
+      <div className="display-center">
+        <LoadingSpinner />
+      </div>
+    );
   }
 
   if (orderList?.length === 0) {
