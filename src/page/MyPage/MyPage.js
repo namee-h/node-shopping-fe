@@ -5,14 +5,18 @@ import { useDispatch, useSelector } from "react-redux";
 import OrderStatusCard from "./component/OrderStatusCard";
 import "./style/orderStatus.style.css";
 import { getOrder } from "../../features/order/orderSlice";
+import LoadingSpinner from "../../common/component/LoadingSpinner";
 
 const MyPage = () => {
   const dispatch = useDispatch();
-  const { orderList } = useSelector((state) => state.order);
+  const { orderList, loading } = useSelector((state) => state.order);
   console.log(orderList);
   useEffect(() => {
     dispatch(getOrder());
   }, [dispatch]);
+  if (orderList.length > 0 && loading) {
+    return <LoadingSpinner />;
+  }
 
   if (orderList?.length === 0) {
     return (
