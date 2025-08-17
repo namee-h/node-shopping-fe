@@ -21,9 +21,6 @@ export const createOrder = createAsyncThunk(
     try {
       const response = await api.post("/order", payload);
 
-      if (response.status !== 200) {
-        throw new Error(response.data.error);
-      }
       dispatch(getCartQty());
       return response.data.orderNum;
     } catch (error) {
@@ -43,9 +40,6 @@ export const getOrder = createAsyncThunk(
   async (_, { rejectWithValue, dispatch }) => {
     try {
       const response = await api.get("/order");
-      if (response.status !== 200) {
-        throw new Error(response.data.error);
-      }
       return response.data.order;
     } catch (error) {
       return rejectWithValue(error.error);
@@ -59,9 +53,6 @@ export const getOrderList = createAsyncThunk(
     try {
       const response = await api.get("/order/admin", { params: { ...query } });
       console.log("response", response);
-      if (response.status !== 200) {
-        throw new Error(response.data.error);
-      }
 
       return response.data;
     } catch (error) {
@@ -75,9 +66,6 @@ export const updateOrder = createAsyncThunk(
   async ({ id, status }, { dispatch, getState, rejectWithValue }) => {
     try {
       const response = await api.put("/order/admin", { id, status });
-      if (response.status !== 200) {
-        throw new Error(response.data.error);
-      }
 
       // 현재 검색 조건을 유지하면서 리스트 갱신
       const state = getState();
